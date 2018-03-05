@@ -68,6 +68,39 @@ public:
   double lambda_;
 
 
+  // Additional memeber  variables
+
+  // Generate sigma points
+  //create augmented mean vector
+  VectorXd x_aug;
+
+  //create augmented state covariance
+  MatrixXd P_aug;
+
+  //create sigma point matrix
+  MatrixXd Xsig_aug;
+
+
+  // Predict sigma points
+  //create matrix with predicted sigma points
+  MatrixXd Xsig_pred;
+
+
+
+  // Measurement space dimension (Radar)
+  int n_z_radar;
+
+  // Measurement space dimension (Laser)
+  int n_z_laser;
+
+  // Transform sigma points into measurement space (Radar)
+  MatrixXd Zsig_radar;
+
+  // Transform sigma points into measurement space (Laser)
+  MatrixXd Zsig_laser;
+
+
+
   /**
    * Constructor
    */
