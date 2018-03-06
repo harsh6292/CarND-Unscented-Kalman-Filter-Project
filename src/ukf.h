@@ -72,13 +72,13 @@ public:
 
   // Generate sigma points
   //create augmented mean vector
-  VectorXd x_aug;
+  VectorXd x_aug_;
 
   //create augmented state covariance
-  MatrixXd P_aug;
+  MatrixXd P_aug_;
 
   //create sigma point matrix
-  MatrixXd Xsig_aug;
+  MatrixXd Xsig_aug_;
 
 
   // Predict sigma points
@@ -92,12 +92,6 @@ public:
 
   // Measurement space dimension (Laser)
   int n_z_laser;
-
-  // Transform sigma points into measurement space (Radar)
-  MatrixXd Zsig_radar;
-
-  // Transform sigma points into measurement space (Laser)
-  MatrixXd Zsig_laser;
 
 
 
