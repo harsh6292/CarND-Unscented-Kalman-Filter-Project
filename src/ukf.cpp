@@ -31,10 +31,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 7;
+  std_a_ = 6;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 7;
+  std_yawdd_ = 6;
   
   //DO NOT MODIFY measurement noise values below these are provided by the sensor manufacturer.
   // Laser measurement noise standard deviation position1 in m
@@ -121,9 +121,8 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
       x_(0) = rho * cos(theta); //px
       x_(1) = rho * sin(theta); //py
-      x_(2) = 0; //vx
-      x_(3) = rho; //rho
-      x_(4) = rho_dot; //rho_dot
+      x_(2) = rho_dot * cos(theta); //vx
+      x_(3) = rho_dot * sin(theta); // vy
     }
     else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
       // Get the raw measurements
@@ -137,17 +136,6 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     for(int i = 0; i < n_x_; i++) {
       P_(i,i) = 1;
     }
-
-    //create augmented mean state
-    x_aug_.head(n_x_) = x_;
-    x_aug_(5) = 0.0;
-    x_aug_(6) = 0.0;
-
-    //create augmented covariance matrix
-    P_aug_.fill(0.0);
-    P_aug_.topLeftCorner(5,5) = P_;
-    P_aug_(5,5) = (std_a_ * std_a_);
-    P_aug_(6,6) = (std_yawdd_ * std_yawdd_);
 
     // store the starting timestamp
     time_us_ = meas_package.timestamp_;
@@ -270,6 +258,7 @@ void UKF::Prediction(double delta_t) {
   // Step - 3: Predict the mean and covariance matrix
 
   //predicted state mean
+  x_.fill(0.0);
   for (int i = 0; i < (2 * n_aug_ + 1); i++) {
     x_ = x_ + weights_(i) * Xsig_pred.col(i);
   }
@@ -277,6 +266,7 @@ void UKF::Prediction(double delta_t) {
   std::cout<<"Done calculating mean state!"<<endl;
 
   //predicted state covariance matrix
+  P_.fill(0.0);
   for (int i = 0; i < (2 * n_aug_ + 1); i++) {
 
     std::cout<<"Processing mean covariance: "<<i<<endl;
