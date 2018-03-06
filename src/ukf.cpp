@@ -16,6 +16,8 @@ UKF::UKF() {
   // Is the UKF initialized?
   is_initialized_ = false;
 
+  time_us_ = 0;
+
   // if this is false, laser measurements will be ignored (except during init)
   use_laser_ = true;
 
@@ -29,10 +31,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 30;
+  std_a_ = 7;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 30;
+  std_yawdd_ = 7;
   
   //DO NOT MODIFY measurement noise values below these are provided by the sensor manufacturer.
   // Laser measurement noise standard deviation position1 in m
@@ -152,6 +154,8 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
+
+    std::cout<<"Done Initializing!"<<endl;
     return;
   }
 
@@ -164,9 +168,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   float delta_time = (meas_package.timestamp_ - time_us_) / 1000000.0;
   time_us_ = meas_package.timestamp_;
 
-
+  std::cout<<"Processing Measurement: "<<delta_time<<endl;
   Prediction(delta_time);
-
+  std::cout<<"Done Prediction!"<<endl;
 
   /*****************************************************************************
    *  Update
@@ -177,7 +181,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   } else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
     UpdateLidar(meas_package);
   }   
-  
+  std::cout<<"Done Update!"<<endl;
 }
 
 /**
@@ -204,6 +208,8 @@ void UKF::Prediction(double delta_t) {
 
   //create square root matrix
   MatrixXd L = P_aug_.llt().matrixL();
+
+  std::cout<<"Done calculating sqrt of matrix!"<<endl;
 
   //Update augmented sigma points
   Xsig_aug_.col(0)  = x_aug_;
@@ -260,7 +266,7 @@ void UKF::Prediction(double delta_t) {
     Xsig_pred(4, i) = yawd_pred;
   }
 
-
+  std::cout<<"Done calculating sigma point prediction!"<<endl;
   // Step - 3: Predict the mean and covariance matrix
 
   //predicted state mean
@@ -268,9 +274,12 @@ void UKF::Prediction(double delta_t) {
     x_ = x_ + weights_(i) * Xsig_pred.col(i);
   }
 
-  //predicted state covariance matrix
-  for (int i = 0; i < 2 * n_aug_ + 1; i++) {
+  std::cout<<"Done calculating mean state!"<<endl;
 
+  //predicted state covariance matrix
+  for (int i = 0; i < (2 * n_aug_ + 1); i++) {
+
+    std::cout<<"Processing mean covariance: "<<i<<endl;
     // state difference
     VectorXd x_diff = Xsig_pred.col(i) - x_;
 
@@ -284,7 +293,10 @@ void UKF::Prediction(double delta_t) {
     }
 
     P_ = P_ + weights_(i) * x_diff * x_diff.transpose() ;
+
   }
+
+  std::cout<<"Done calculating mean covariance!"<<endl;
 }
 
 
