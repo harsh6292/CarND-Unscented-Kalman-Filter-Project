@@ -4,6 +4,7 @@
 #include <math.h>
 #include "ukf.h"
 #include "tools.h"
+#include <fstream>
 
 using namespace std;
 
@@ -128,6 +129,45 @@ int main()
     	  estimations.push_back(estimate);
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+
+        // Write values to file
+        //Filestream to store estimations and ground truth values
+        ofstream out_file_;
+        out_file_.open("obj_pose-laser-radar-ukf-output.txt", ios::app);
+        out_file_ << ukf.x_(0) << "\t"; //pos1 - est
+        out_file_ << ukf.x_(1) << "\t"; //pos2 - est
+        out_file_ << ukf.x_(2) << "\t"; //vel_abs -est
+        out_file_ << ukf.x_(3) << "\t"; //yaw_angle -est
+        out_file_ << ukf.x_(4) << "\t"; //yaw_rate -est
+
+        //output the measurements
+        if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+          //output the estimation
+          out_file_ << meas_package.raw_measurements_(0) << "\t"; //p1 - meas
+          out_file_ << meas_package.raw_measurements_(1) << "\t"; //p2 - meas
+        } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+          //output the estimation in the cartesian coordinates
+          float ro = meas_package.raw_measurements_(0);
+          float phi = meas_package.raw_measurements_(1);
+          out_file_ << ro * cos(phi) << "\t"; //p1_meas
+          out_file_ << ro * sin(phi) << "\t"; //p2_meas
+        }
+
+        //output the gt packages
+        out_file_ << gt_values(0) << "\t"; //p1 - GT
+        out_file_ << gt_values(1) << "\t"; //p2 - GT
+        out_file_ << 0.0 << "\t"; //v_abs - GT
+        out_file_ << 0.0 << "\t"; //yaw - GT
+        out_file_ << 0.0 << "\t"; //yaw_dot - GT
+        out_file_ << gt_values(2) << "\t"; //v1 - GT
+        out_file_ << gt_values(3) << "\t"; //v2 - GT
+
+        out_file_ << ukf.nis_lidar << "\t"; //NIS Laser
+        out_file_ << ukf.nis_radar << "\n"; //NIS Radar
+
+        out_file_.close();
+
+
 
           json msgJson;
           msgJson["estimate_x"] = p_x;

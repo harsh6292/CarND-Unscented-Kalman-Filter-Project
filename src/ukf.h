@@ -94,6 +94,8 @@ public:
   int n_z_laser;
 
 
+  double nis_radar;
+  double nis_lidar;
 
   /**
    * Constructor

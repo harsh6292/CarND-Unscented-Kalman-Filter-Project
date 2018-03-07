@@ -82,6 +82,8 @@ UKF::UKF() {
   // Measurement space dimension (Laser)
   n_z_laser = 2;
 
+  nis_radar = 0.0;
+  nis_lidar = 0.0;
 }
 
 UKF::~UKF() {}
@@ -148,6 +150,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   }
 
 
+  nis_radar = 0.0;
+  nis_lidar = 0.0;
+  
   /*****************************************************************************
    *  Prediction
    ****************************************************************************/
@@ -380,7 +385,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   x_ = x_ + (K * z_diff);
   P_ = P_ - (K * S * K.transpose());
 
-  double nis_lidar = (z_diff.transpose() * S.inverse() * z_diff);
+  nis_lidar = (z_diff.transpose() * S.inverse() * z_diff);
   std::cout<<"Lidar NIS: "<<nis_lidar<<endl;
 }
 
@@ -522,6 +527,6 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   x_ = x_ + (K * z_diff);
   P_ = P_ - (K * S * K.transpose());
 
-  double nis_radar = (z_diff.transpose() * S.inverse() * z_diff);
+  nis_radar = (z_diff.transpose() * S.inverse() * z_diff);
   std::cout<<"Radar NIS: "<<nis_radar<<endl;
 }
